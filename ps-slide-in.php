@@ -1,15 +1,15 @@
 <?php
 /*
 Plugin Name: PS Slide-In
-Plugin URI: https://cp-psource.github.io/ps-slide-in/
+Plugin URI: https://power-source.github.io/ps-slide-in/
 Description: Erstelle und verwalte schöne Marketingbotschaften und konvertiere dann Deine Zielgruppe so, dass sie nicht gestört wird.
-Version: 1.4.0
+Version: 1.1.0
 Text Domain: wdsi
 Author: PSOURCE
-Author URI: https://github.com/cp-psource
+Author URI: https://github.com/Power-Source
 
 
-Copyright 2020-2023 PSOURCE (https://github.com/cp-psource) 
+Copyright 2020-2023 PSOURCE (https://github.com/Power-Source) 
 Authors - DerN3rd (PSOURCE)
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 
-define ('WDSI_CURRENT_VERSION', '1.4.0');
+define ('WDSI_CURRENT_VERSION', '1.1.0');
 define ('WDSI_PLUGIN_SELF_DIRNAME', basename(dirname(__FILE__)));
 define ('WDSI_PROTOCOL', (is_ssl() ? 'https://' : 'http://'));
 

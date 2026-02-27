@@ -183,7 +183,7 @@ class Wdsi_AdminPages {
 		add_settings_field('wdsi_color_scheme', __('Farbschema', 'wdsi'), array($form, 'create_color_scheme_box'), 'wdsi_options_page', 'wdsi_appearance');
 		
 		add_settings_field('wdsi_services', __('Social Media Dienste', 'wdsi'), array($form, 'create_services_box'), 'wdsi_options_page', 'wdsi_appearance');
-		//add_settings_field('wdsi_mailchimp', __('MailChimp-Abonnements', 'wdsi'), array($form, 'create_mailchimp_box'), 'wdsi_options_page', 'wdsi_appearance');
+		add_settings_field('wdsi_mailchimp', __('MailChimp-Abonnements', 'wdsi'), array($form, 'create_mailchimp_box'), 'wdsi_options_page', 'wdsi_appearance');
 		
 		add_settings_field('wdsi_css', __('Benutzerdefiniertes CSS', 'wdsi'), array($form, 'create_custom_css_box'), 'wdsi_options_page', 'wdsi_appearance');
 
@@ -271,6 +271,13 @@ function wdsi_preview_slide(e) {
 	var normal = $button.text();
 	var working = $button.attr("data-working");
 	
+	var services = {};
+	$('[name^="wdsi[services]["][type="checkbox"]:checked').each(function() {
+		var name = $(this).attr('name');
+		var key = name.match(/wdsi\[services\]\[([^\]]+)\]/)[1];
+		services[key] = key;
+	});
+	
 	$.post(ajaxurl, {
 		action: "wdsi_preview_slide",
 		_ajax_nonce: wdsi_preview_nonce,
@@ -282,7 +289,8 @@ function wdsi_preview_slide(e) {
 			"variation": $('[name="wdsi[variation]"]:checked').val(),
 			"position": $('[name="wdsi[position]"]:checked').val(),
 			"scheme": $('[name="wdsi[scheme]"]:checked').val(),
-			"width": ($("#wdsi-full_width").is(":checked") ? 'full' : $("#wdsi-width").val())
+			"width": ($("#wdsi-full_width").is(":checked") ? 'full' : $("#wdsi-width").val()),
+			"services": services
 		}
 	}).done(function (resp) {
 		if (!(resp && "data" in resp && resp.data && "out" in resp.data && resp.data.out)) {

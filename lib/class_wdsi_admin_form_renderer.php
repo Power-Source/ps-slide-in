@@ -228,34 +228,34 @@ class Wdsi_AdminFormRenderer {
 	
 	function create_services_box () {
 		$services = array (
-			//'google' => 'Google',
 			'facebook' => 'Facebook Like',
-			'twitter' => 'Twittern',
-			//'stumble_upon' => 'Stumble upon',
-			//'delicious' => 'Del.icio.us',
+			'x' => 'X (ehemals Twitter)',
 			'reddit' => 'Reddit',
 			'linkedin' => 'LinkedIn',
 			'pinterest' => 'Pinterest',
-			//'related_posts' => __('Related posts', 'wdsi'),
-			//'mailchimp' => __('MailChimp subscription form', 'wdsi'),
+			'whatsapp' => 'WhatsApp',
+			'email' => 'E-Mail',
 		);
 		if (function_exists('wdpv_get_vote_up_ms')) $services['post_voting'] = 'Post Voting'; 
 		$externals = array (
-			//'google',
-			'twitter',
+			'x',
 			'linkedin',
 			'pinterest',
 		);
 		$countable = array(
-			//'google',
-			'twitter',
+			'x',
 			'pinterest',
 		);
 
 		$load = $this->_get_option('services');
 		$load = is_array($load) ? $load : array();
 
-		$services = array_merge($load, $services);
+		// Migrate old 'twitter' service to 'x'
+		if (isset($load['twitter']) && !isset($load['x'])) {
+			$load['x'] = 'x';
+			unset($load['twitter']);
+			$this->_save_option('services', $load);  // Auto-migrate on first load
+		}
 
 		$skip = $this->_get_option('skip_script');
 		$skip = is_array($skip) ? $skip : array();
@@ -265,6 +265,9 @@ class Wdsi_AdminFormRenderer {
 
 		echo "<ul id='wdsi-services'>";
 		foreach ($services as $key => $name) {
+			if ('twitter' === $key) {
+				$name = 'X (ehemals Twitter)';
+			}
 			$disabled = isset($load[$key]) ? '' : 'wdsi-disabled';
 			if ('post_voting' === $key && !function_exists('wdpv_get_vote_up_ms')) continue;
 			echo "<li class='wdsi-service-item {$disabled}'>";
@@ -275,7 +278,12 @@ class Wdsi_AdminFormRenderer {
 					'<input type="hidden" name="wdsi[services][' . $key . '][code]" value="' . esc_attr($name['code']) . '" />' .
 				'</div>';
 			} else {
-				echo "<img src='" . WDSI_PLUGIN_URL . "/img/{$key}.png' width='50px' />" .
+				$icon_key = ('twitter' === $key) ? 'x' : $key;
+				$icon_override = WDSI_PLUGIN_BASE_DIR . "/img/{$icon_key}-icon.png";
+				if (file_exists($icon_override)) {
+					$icon_key = "{$icon_key}-icon";
+				}
+				echo "<img src='" . WDSI_PLUGIN_URL . "/img/{$icon_key}.png' width='50px' />" .
 					"<input type='checkbox' name='wdsi[services][{$key}]' value='{$key}' " .
 						"id='wdsi-services-{$key}' " .
 						(in_array($key, $load) ? "checked='checked'" : "") .

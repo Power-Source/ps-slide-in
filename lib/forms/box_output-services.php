@@ -16,16 +16,17 @@
 					echo $service['code'];
 				} else {
 					switch ($key) {
+						case "x":
 						case "twitter":
-							$count = in_array('twitter', $no_count)
+							$count = (in_array('x', $no_count) || in_array('twitter', $no_count))
 								? 'none'
 								: 'horizontal'
 							;
-								if (!in_array('twitter', $skip_script) && !in_array('twitter', $loaded_scripts, true)) {
+								if (!in_array('x', $skip_script) && !in_array('twitter', $skip_script) && !in_array('x', $loaded_scripts, true)) {
 									echo '<script type="text/javascript" src="https://platform.twitter.com/widgets.js"></script>';
-									$loaded_scripts[] = 'twitter';
+									$loaded_scripts[] = 'x';
 								}
-							echo '<a href="https://twitter.com/intent/tweet" class="twitter-share-button" data-count="' . $count . '">Twittern</a>';
+							echo '<a href="https://twitter.com/intent/tweet" class="twitter-share-button" data-count="' . $count . '">Auf X teilen</a>';
 							break;
 						case "facebook":
 							echo '<iframe src="https://www.facebook.com/plugins/like.php?href=' .
@@ -77,6 +78,24 @@
 								: 'beside'
 							;
 							echo '<a data-pin-config="' . $count . '" href="//pinterest.com/pin/create/button/" data-pin-do="buttonBookmark" ><img src="//assets.pinterest.com/images/pidgets/pin_it_button.png" /></a>';
+							break;
+						case "whatsapp":
+							$icon_url = WDSI_PLUGIN_URL . '/img/whatsapp.png';
+							if (file_exists(WDSI_PLUGIN_BASE_DIR . '/img/whatsapp-icon.png')) {
+								$icon_url = WDSI_PLUGIN_URL . '/img/whatsapp-icon.png';
+							}
+							echo '<a href="https://wa.me/?text=' . urlencode(get_the_title() . ' ' . $url) . '" target="_blank" rel="noopener noreferrer" class="whatsapp-share-button" title="Auf WhatsApp teilen">' .
+								'<img src="' . $icon_url . '" width="20px" height="20px" alt="WhatsApp" />' .
+								'</a>';
+							break;
+						case "email":
+							$icon_url = WDSI_PLUGIN_URL . '/img/email.png';
+							if (file_exists(WDSI_PLUGIN_BASE_DIR . '/img/email-icon.png')) {
+								$icon_url = WDSI_PLUGIN_URL . '/img/email-icon.png';
+							}
+							echo '<a href="mailto:?subject=' . urlencode(get_the_title()) . '&body=' . urlencode(get_the_title() . ' - ' . $url) . '" class="email-share-button" title="Per E-Mail teilen">' .
+								'<img src="' . $icon_url . '" width="20px" height="20px" alt="E-Mail" />' .
+								'</a>';
 							break;
 					}
 				}

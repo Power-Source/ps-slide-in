@@ -516,16 +516,13 @@ class Wdsi_SlideIn {
 		$opts = get_post_meta($post->ID, 'wdsi', true);
 
 		$services = array (
-			//'google' => 'Google',
 			'facebook' => 'Facebook Like',
-			'twitter' => 'Twittern',
-			//'stumble_upon' => 'Stumble upon',
-			//'delicious' => 'Del.icio.us',
+			'x' => 'X (ehemals Twitter)',
 			'reddit' => 'Reddit',
 			'linkedin' => 'LinkedIn',
 			'pinterest' => 'Pinterest',
-			//'related_posts' => __('Related posts', 'wdsi'),
-			//'mailchimp' => __('MailChimp subscription form', 'wdsi'),
+			'whatsapp' => 'WhatsApp',
+			'email' => 'E-Mail',
 		);
 		if (function_exists('wdpv_get_vote_up_ms')) $services['post_voting'] = 'Post Voting'; 
 
@@ -534,6 +531,9 @@ class Wdsi_SlideIn {
 
 		echo "<ul id='wdsi-services'>";
 		foreach ($services as $key => $name) {
+			if ('twitter' === $key) {
+				$name = 'X (ehemals Twitter)';
+			}
 			$disabled = isset($load[$key]) ? '' : 'wdsi-disabled';
 			if ('post_voting' === $key && !function_exists('wdpv_get_vote_up_ms')) continue;
 			echo "<li class='wdsi-service-item {$disabled}'>";
@@ -544,7 +544,12 @@ class Wdsi_SlideIn {
 					'<input type="hidden" name="wdsi[services][' . $key . '][code]" value="' . esc_attr($name['code']) . '" />' .
 				'</div>';
 			} else {
-				echo "<img src='" . WDSI_PLUGIN_URL . "/img/{$key}.png' width='50px' />" .
+				$icon_key = ('twitter' === $key) ? 'x' : $key;
+				$icon_override = WDSI_PLUGIN_BASE_DIR . "/img/{$icon_key}-icon.png";
+				if (file_exists($icon_override)) {
+					$icon_key = "{$icon_key}-icon";
+				}
+				echo "<img src='" . WDSI_PLUGIN_URL . "/img/{$icon_key}.png' width='50px' />" .
 					"<input type='checkbox' name='wdsi[services][{$key}]' value='{$key}' " .
 						"id='wdsi-services-{$key}' " .
 						(in_array($key, $load) ? "checked='checked'" : "") .
