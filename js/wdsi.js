@@ -5,8 +5,10 @@
 		var MdnCookies = {
 			getItem: function (sKey) {
 				if (!sKey || !this.hasItem(sKey)) { return null; }
-			var escapedKey = encodeURIComponent(sKey).replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
-			return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + escapedKey + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1"));
+				var escapedKey = encodeURIComponent(sKey).replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
+				return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + escapedKey + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1"));
+			},
+	
 			setItem: function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
 				if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) { return; }
 				var sExpires = "";
@@ -34,8 +36,9 @@
 			},
 	
 			hasItem: function (sKey) {
-			var escapedKey = encodeURIComponent(sKey).replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
-			return new RegExp("(?:^|;\\s*)" + escapedKey + "\\s*\\=").test(document.cookie);
+				var escapedKey = encodeURIComponent(sKey).replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
+				return new RegExp("(?:^|;\\s*)" + escapedKey + "\\s*\\=").test(document.cookie);
+			},
 	
 			keys: function () {
 				var aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
