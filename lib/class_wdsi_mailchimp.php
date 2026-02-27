@@ -89,7 +89,8 @@ class Wdsi_Mailchimp {
 	 * @return bool True on success, false on failure.
 	 */
 	private function _parse_key () {
-		if (preg_match('/-/', $this->_raw_api_key)) list($key, $server) = explode('-', $this->_raw_api_key);
+		$raw_key = (string)$this->_raw_api_key;
+		if (preg_match('/-/', $raw_key)) list($key, $server) = explode('-', $raw_key);
 		else return false;
 		if (!$key || !$server) return false;
 		$this->_parsed_key = array(

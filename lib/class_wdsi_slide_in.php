@@ -18,7 +18,7 @@ class Wdsi_SlideIn {
 		add_action('init', array(self::$_instance, 'register_post_type'));
 		add_action('widgets_init', array(self::$_instance, 'register_sidebar'));
 		add_action('admin_init', array(self::$_instance, 'add_meta_boxes'));
-		add_action('save_post', array(self::$_instance, 'save_meta'), 9); // Bind it a bit earlier, so we can kill Post Indexer actions.
+		add_action('save_post', array(self::$_instance, 'save_meta'), 9, 3); // Bind it a bit earlier, so we can kill Post Indexer actions.
 		add_action('wp_insert_post_data', array(self::$_instance, 'set_up_post_status'));
 
 		add_filter("manage_edit-" . self::POST_TYPE . "_columns", array(self::$_instance, "add_custom_columns"));
@@ -354,6 +354,9 @@ class Wdsi_SlideIn {
 		$opts = get_post_meta($post->ID, 'wdsi', true);
 		$condition = wdsi_getval($opts, 'show_after-condition');
 		$value = wdsi_getval($opts, 'show_after-rule');
+		$percentage = '';
+		$timeout = '';
+		$selector = '';
 		
 		switch ($condition) {
 			case "selector":
@@ -557,9 +560,11 @@ class Wdsi_SlideIn {
 	/**
 	 * Saves metabox data.
 	 */
-	function save_meta () {
-		global $post;
-		if ($post && self::POST_TYPE != $post->post_type) return false;
+	function save_meta ($post_id = 0, $post = null, $update = null) {
+		if (!$post || !($post instanceof WP_Post)) {
+			$post = get_post($post_id);
+		}
+		if (!$post || self::POST_TYPE != $post->post_type) return false;
 
 		if (wdsi_getval($_POST, 'show_if')) {
 			// If we have Post Indexer present, remove the post save action for the moment.
@@ -804,12 +809,12 @@ class Wdsi_SlideIn {
 		$mailchimp_placeholder = wdsi_getval($type, 'mailchimp-placeholder', 'you@yourdomain.com');
 		$mailchimp_position = wdsi_getval($type, 'mailchimp-position', 'after');
 
-		$position = wdsi_getval($msg, 'position') ? $msg['position'] : wdsi_getval($opts, 'position');
+		$position = wdsi_getval($msg, 'position', wdsi_getval($opts, 'position'));
 		$position = $position ? $position : 'left';
 
 		$percentage = $selector = $timeout = false;
-		$condition =  wdsi_getval($msg, 'show_after-condition') ? $msg['show_after-condition'] :wdsi_getval($opts, 'show_after-condition');
-		$value = wdsi_getval($msg, 'show_after-rule') ? $msg['show_after-rule'] : wdsi_getval($opts, 'show_after-rule');
+		$condition = wdsi_getval($msg, 'show_after-condition', wdsi_getval($opts, 'show_after-condition'));
+		$value = wdsi_getval($msg, 'show_after-rule', wdsi_getval($opts, 'show_after-rule'));
 		switch ($condition) {
 			case "selector":
 				$selector = "#{$value}";
@@ -829,23 +834,23 @@ class Wdsi_SlideIn {
 				break;
 		}
 
-		$_theme = wdsi_getval($msg, 'theme') ? $msg['theme'] : wdsi_getval($opts, 'theme');
+		$_theme = wdsi_getval($msg, 'theme', wdsi_getval($opts, 'theme'));
 		$theme = $_theme && in_array($_theme, array_keys(Wdsi_SlideIn::get_appearance_themes())) ? $_theme : 'minimal';
 
-		$_variation = wdsi_getval($msg, 'variation') ? $msg['variation'] : wdsi_getval($opts, 'variation');
+		$_variation = wdsi_getval($msg, 'variation', wdsi_getval($opts, 'variation'));
 		$variation = $_variation && in_array($_variation, array_keys(Wdsi_SlideIn::get_theme_variations())) ? $_variation : 'light';
 		
-		$_scheme = wdsi_getval($msg, 'scheme') ? $msg['scheme'] : wdsi_getval($opts, 'scheme');
+		$_scheme = wdsi_getval($msg, 'scheme', wdsi_getval($opts, 'scheme'));
 		$scheme = $_scheme && in_array($_scheme, array_keys(Wdsi_SlideIn::get_variation_schemes())) ? $_scheme : 'red';
 
-		$expire_after = wdsi_getval($msg, 'show_for-time') ? $msg['show_for-time'] : wdsi_getval($opts, 'show_for-time');
+		$expire_after = wdsi_getval($msg, 'show_for-time', wdsi_getval($opts, 'show_for-time'));
 		$expire_after = $expire_after ? $expire_after : 10;
-		$expire_unit = wdsi_getval($msg, 'show_for-unit') ? $msg['show_for-unit'] : wdsi_getval($opts, 'show_for-unit');
+		$expire_unit = wdsi_getval($msg, 'show_for-unit', wdsi_getval($opts, 'show_for-unit'));
 		$expire_unit = $expire_unit ? $expire_unit : 's';
 		$expire_timeout = sprintf("%d%s", $expire_after, $expire_unit);
 
 		$full_width = $width = false;
-		$_width = wdsi_getval($msg, 'width') ? $msg['width'] : wdsi_getval($opts, 'width');
+		$_width = wdsi_getval($msg, 'width', wdsi_getval($opts, 'width'));
 		if (!(int)$_width || 'full' == $width) {
 			$full_width = 'slidein-full';
 		} else {

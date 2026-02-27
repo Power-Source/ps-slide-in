@@ -47,7 +47,10 @@ function wdsi_get_description ($post_id=false) {
  * Attempt to get fully qualified URL.
  */
 function wdsi_get_url ($post_id=false) {
-	$url = (@$_SERVER["HTTPS"] == 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	$https = (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == 'on') ? 'https://' : 'http://';
+	$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+	$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+	$url = $host ? ($https . $host . $uri) : site_url($uri);
 	// If we don't have post id, no reason to even try.
 	$post_id = (int)$post_id;
 	if (!$post_id) return apply_filters(
@@ -96,8 +99,9 @@ function wdsi_get_related_posts ($post_id, $taxonomy, $limit=3) {
  * Fetching related post excerpt without disturbing the loop.
  */
 function wdsi_get_related_post_excerpt ($post) {
+	if (!$post || !is_object($post)) return '';
 	if ($post->post_excerpt) return $post->post_excerpt;
-	$string = $post->post_content;
+	$string = (string)$post->post_content;
 	$string = trim(preg_replace('/\r|\n/', ' ', strip_shortcodes(htmlspecialchars(wp_strip_all_tags(strip_shortcodes($string)), ENT_QUOTES))));
 	$string = (preg_match('/.{156,}/um', $string))
 		? preg_replace('/(.{0,152}).*/um', '$1', $string) . '...'

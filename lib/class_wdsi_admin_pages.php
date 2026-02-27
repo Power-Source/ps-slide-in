@@ -24,7 +24,7 @@ class Wdsi_AdminPages {
 
 		// Post meta boxes
 		add_action('admin_init', array($this, 'add_meta_boxes'));
-		add_action('save_post', array($this, 'save_meta'));
+		add_action('save_post', array($this, 'save_meta'), 10, 3);
 
 		add_action('admin_print_scripts', array($this, 'js_print_scripts'));
 		add_action('admin_print_styles', array($this, 'css_print_styles'));
@@ -109,6 +109,7 @@ class Wdsi_AdminPages {
 
 	function render_message_override_box () {
 		global $post;
+		if (!$post || !($post instanceof WP_Post)) return;
 		$msg_id = get_post_meta($post->ID, 'wdsi_message_id', true);
 		$do_not_show = get_post_meta($post->ID, 'wdsi_do_not_show', true);
 		$query = new WP_Query(array(
@@ -135,8 +136,11 @@ class Wdsi_AdminPages {
 		'<br />';
 	}
 
-	function save_meta () {
-		global $post;
+	function save_meta ($post_id = 0, $post = null, $update = null) {
+		if (!$post || !($post instanceof WP_Post)) {
+			$post = get_post($post_id);
+		}
+		if (!$post) return false;
 		//if ('post' != $post->post_type) return false; // Deprecated
 		if (isset($_POST['wdsi-message_override'])) {
 			if ($_POST['wdsi-message_override']) update_post_meta($post->ID, 'wdsi_message_id', $_POST['wdsi-message_override']);

@@ -10,18 +10,20 @@ class Wdsi_Options {
 	 * Gets a single option from options storage.
 	 */
 	function get_option($key) {
-    $opts = get_option('wdsi');
-    if (is_array($opts) && array_key_exists($key, $opts)) {
-        return $opts[$key];
-    }
-    return null; // Or handle the absence of the key however you prefer
+		$opts = get_option('wdsi');
+		if (is_array($opts) && array_key_exists($key, $opts)) {
+			return $opts[$key];
+		}
+		return null; // Or handle the absence of the key however you prefer
 	}
 
 	/**
 	 * Sets all stored options.
 	 */
 	function set_options ($opts) {
-		return WP_NETWORK_ADMIN ? update_site_option('wdsi', $opts) : update_option('wdsi', $opts);
+		return (defined('WP_NETWORK_ADMIN') && WP_NETWORK_ADMIN)
+			? update_site_option('wdsi', $opts)
+			: update_option('wdsi', $opts);
 	}
 
 	/**

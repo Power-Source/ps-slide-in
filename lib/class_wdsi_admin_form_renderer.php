@@ -4,12 +4,12 @@ class Wdsi_AdminFormRenderer {
 	function _get_option ($key=false, $pfx='wdsi') {
 		$opts = get_option($pfx);
 		if (!$key) return $opts;
-		return @$opts[$key];
+		return (is_array($opts) && array_key_exists($key, $opts)) ? $opts[$key] : null;
 	}
 
 	function _create_checkbox ($name, $pfx='wdsi') {
 		$opt = $this->_get_option($name, $pfx);
-		$value = @$opt[$name];
+		$value = (is_array($opt) && array_key_exists($name, $opt)) ? $opt[$name] : $opt;
 		return
 			"<input type='radio' name='{$pfx}[{$name}]' id='{$name}-yes' value='1' " . ((int)$value ? 'checked="checked" ' : '') . " /> " .
 				"<label for='{$name}-yes'>" . __('Ja', 'wdsi') . "</label>" .

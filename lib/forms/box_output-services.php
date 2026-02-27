@@ -1,7 +1,8 @@
 <?php
 	global $wp;
 	$url = (is_home() || is_front_page()) ? site_url() : get_permalink();
-	$url = apply_filters('wdsi-url-current_url', ($url ? $url : site_url($wp->request))); // Fix for empty URLs
+	$wp_request = (isset($wp) && isset($wp->request)) ? $wp->request : '';
+	$url = apply_filters('wdsi-url-current_url', ($url ? $url : site_url($wp_request))); // Fix for empty URLs
 ?>
 <div class="wdsi-slide-control">
 	<div class="wdsi-slide-share wdsi-clearfix">
