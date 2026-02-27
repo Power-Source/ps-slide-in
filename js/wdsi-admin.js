@@ -156,16 +156,61 @@ $(function () {
 				"scheme": $('[name="wdsi[scheme]"]:checked').val(),
 				"width": ($("#wdsi-full_width").is(":checked") ? 'full' : $("#wdsi-width").val())
 			}
-		}, function (resp) {
-			if (!(resp && "data" in resp && resp.data && "out" in resp.data && resp.data.out)) return false;
+		}).done(function (resp) {
+			console.log('Preview response:', resp);
+			if (!(resp && "data" in resp && resp.data && "out" in resp.data && resp.data.out)) {
+				console.error('Invalid response format', resp);
+				return false;
+			}
+			// Ensure _wdsi_data is initialized for preview
+			if (!window._wdsi_data) {
+				window._wdsi_data = {
+					'reshow': {
+						'timeout': 0,
+						'name': 'test',
+						'path': null,
+						'all': false,
+					}
+				};
+			}
 			$("body")
 				.find("#wdsi-slide_in").remove().end()
 				.append(resp.data.out)
 			;
+			console.log('Preview HTML appended, triggering wdsi-init');
 			$(document).trigger("wdsi-init");
-		}, 'json');
+			
+			// For preview, immediately make the slide visible
+			$("#wdsi-slide_in").addClass('wdsi-slide-active');
+			console.log('Added wdsi-slide-active class to preview');
+		}).fail(function (xhr, status, error) {
+			console.error('Preview request failed:', status, error, xhr.responseText);
+		});
 	}
+	
+	// Make preview function globally accessible
+	window.wdsi_preview_slide = function(e) {
+		console.log('wdsi_preview_slide called', e);
+		if (e && e.preventDefault) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		var $button = $(e.target || event.target),
+			normal = $button.text(),
+			working = $button.attr("data-working"),
+			promise = preview()
+		;
+		$button.text(working);
+		promise.always(function () {
+			setTimeout(function () {
+				$button.text(normal);
+			}, _timeout * 1100);
+		});
+		return false;
+	};
+	
 	function preview_slide (e) {
+		console.log('preview_slide called', e);
 		if (e && e.preventDefault) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -184,8 +229,11 @@ $(function () {
 		return false;
 	}
 	function init () {
-		if (!("_wdsi_data" in window)) return false;
+		console.log('Initializing preview_slide handler');
+		var $button = $(".wdsi-preview_slide a");
+		console.log('Found preview buttons:', $button.length);
 		$(document).on("click", ".wdsi-preview_slide a", preview_slide);
+		console.log('Preview slide handler attached');
 	}
 	init();
 })(jQuery);

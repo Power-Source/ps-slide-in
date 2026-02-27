@@ -234,13 +234,8 @@ class Wdsi_AdminPages {
 			(is_object($post) && isset($post->post_type) && Wdsi_SlideIn::POST_TYPE == $post->post_type)
 		) {
 			wp_enqueue_script( array("jquery", "jquery-ui-core", "jquery-ui-sortable", 'jquery-ui-dialog') );
-			wp_enqueue_script('wdsi-admin', WDSI_PLUGIN_URL . '/js/wdsi-admin.js', array("jquery", "jquery-ui-core", "jquery-ui-sortable", 'jquery-ui-dialog'));
-			wp_localize_script('wdsi-admin', 'l10nWdsi', array(
-				'clear_set' => __('<strong>&times;</strong> Lösche dieses Set', 'wdsi'),
-				'preview_nonce' => wp_create_nonce('wdsi_preview'),
-			));
-
-			// Preview scripts
+			
+			// Preview scripts - enqueue first so dependencies work correctly
 			wp_enqueue_script('wdsi', WDSI_PLUGIN_URL . '/js/wdsi.js', array('jquery'), WDSI_CURRENT_VERSION);
 			wp_localize_script('wdsi', '_wdsi_data', array(
 				'reshow' => array(
@@ -250,6 +245,118 @@ class Wdsi_AdminPages {
 					'all' => false,
 				),
 			));
+			
+			wp_enqueue_script('wdsi-admin', WDSI_PLUGIN_URL . '/js/wdsi-admin.js', array("jquery", "jquery-ui-core", "jquery-ui-sortable", 'jquery-ui-dialog', 'wdsi'));
+			wp_localize_script('wdsi-admin', 'l10nWdsi', array(
+				'clear_set' => __('<strong>&times;</strong> Lösche dieses Set', 'wdsi'),
+				'preview_nonce' => wp_create_nonce('wdsi_preview'),
+			));
+			
+			// Add inline script to make preview function available early
+			$preview_nonce = wp_create_nonce('wdsi_preview');
+			$inline_script = '<script type="text/javascript">' . "\n";
+			$inline_script .= 'var wdsi_preview_timeout = 1;' . "\n";
+			$inline_script .= 'var wdsi_preview_nonce = "' . esc_attr($preview_nonce) . '";' . "\n";
+			$inline_script .= <<<'INLINE_SCRIPT'
+
+function wdsi_preview_slide(e) {
+	if (!jQuery) return false;
+	if (e && e.preventDefault) {
+		e.preventDefault();
+		e.stopPropagation();
+	}
+	
+	var $ = jQuery;
+	var $button = $(e.target || event.target);
+	var normal = $button.text();
+	var working = $button.attr("data-working");
+	
+	$.post(ajaxurl, {
+		action: "wdsi_preview_slide",
+		_ajax_nonce: wdsi_preview_nonce,
+		opts: {
+			"theme": $('[name="wdsi[theme]"]:checked').val(),
+			"show_after-condition": "timeout",
+			"show_after-rule": "" + wdsi_preview_timeout,
+			"show_for-time": $('[name="wdsi[show_for-time]"]').val() || '',
+			"variation": $('[name="wdsi[variation]"]:checked').val(),
+			"position": $('[name="wdsi[position]"]:checked').val(),
+			"scheme": $('[name="wdsi[scheme]"]:checked').val(),
+			"width": ($("#wdsi-full_width").is(":checked") ? 'full' : $("#wdsi-width").val())
+		}
+	}).done(function (resp) {
+		if (!(resp && "data" in resp && resp.data && "out" in resp.data && resp.data.out)) {
+			return false;
+		}
+		// Ensure _wdsi_data is initialized for preview
+		if (!window._wdsi_data) {
+			window._wdsi_data = {
+				'reshow': {
+					'timeout': 0,
+					'name': 'test',
+					'path': null,
+					'all': false,
+				}
+			};
+		}
+		$("body")
+			.find("#wdsi-slide_in").remove().end()
+			.append(resp.data.out)
+		;
+
+		$(document).trigger("wdsi-init");
+		
+		// For preview, immediately make the slide visible
+		var $slide = $("#wdsi-slide_in");
+		// Remove inline style="display:none" by removing the attribute
+		$slide.removeAttr('style');
+		$slide.addClass('wdsi-slide-active').css({
+			'visibility': 'visible',
+			'position': 'fixed',
+			'display': 'block',
+			'z-index': 999999
+		});
+		
+		// Get the timeout from the form field (not from data attribute which may be wrong)
+		var timeoutVal = $('[name="wdsi[show_for-time]"]').val();
+		var timeout = parseInt(timeoutVal, 10);
+		if (timeout > 0) {
+			setTimeout(function() {
+				$slide.css({
+					'visibility': 'hidden',
+					'display': 'none'
+				});
+			}, timeout * 1000);
+		}
+		
+		// Add close button handler for preview
+		try {
+			var $closeBtn = $slide.find('.wdsi-slide-close a');
+			$closeBtn.on('click', function(e) {
+				e.preventDefault();
+				$slide.css({
+					'visibility': 'hidden',
+					'display': 'none'
+				});
+				return false;
+			});
+		} catch(err) {
+			// Error handler omitted
+		}
+		
+	}).fail(function (xhr, status, error) {
+	}).always(function () {
+		setTimeout(function () {
+			$button.text(normal);
+		}, wdsi_preview_timeout * 1100);
+	});
+	
+	$button.text(working);
+	return false;
+}
+</script>
+INLINE_SCRIPT;
+			echo $inline_script;
 
 		}
 	}
@@ -293,7 +400,10 @@ EoWdsiAdminCss;
 			'post_title' => __('Slide-In Vorschau', 'wdsi'),
 			'post_content' => __('Diese Vorschau zeigt die aktuellen Einstellungen für Position, Breite, Thema, Variation und Farbschema. Bitte vergiss nicht, Deine Änderungen zu speichern, sobald Du mit dem Ergebnis zufrieden bist.', 'wdsi'),
 		);
-		$opts['show_for-time'] = DAY_IN_SECONDS;
+		// Only set default show_for-time if not provided
+		if (empty($opts['show_for-time'])) {
+			$opts['show_for-time'] = DAY_IN_SECONDS;
+		}
 		$out = Wdsi_SlideIn::message_markup($message, $opts, false);
 		wp_send_json_success(array(
 			'out' => $out,

@@ -50,11 +50,12 @@
 				return MdnCookies.getItem(key);
 			},
 			set: function (key, value) {
+				if (!window._wdsi_data || !window._wdsi_data.reshow) return false;
 				var reshow = parseInt(_wdsi_data.reshow.timeout, 10) || 0,
 					timeout = new Date((new Date()).getTime() + (reshow * 1000)),
 					path = _wdsi_data.reshow.path,
 					cookie_name = this.create_page_key(key, value)
-	
+
 				;
 				return MdnCookies.setItem(cookie_name, value, timeout, path);
 			},
@@ -68,6 +69,7 @@
 				return MdnCookies.keys();
 			},
 			create_page_key: function (key, value) {
+				if (!window._wdsi_data || !window._wdsi_data.reshow) return key;
 				hide_all = _wdsi_data.reshow.all;
 				return hide_all
 					? key
@@ -78,6 +80,7 @@
 	})();
 	
 	function register_seen_uri () {
+		if (!window._wdsi_data || !window._wdsi_data.reshow) return false;
 		var cookie_name = _wdsi_data.reshow.name,
 			path = window.location.pathname
 		;
@@ -85,6 +88,7 @@
 	}
 	
 	function cache_cookie_exists () {
+		if (!window._wdsi_data || !window._wdsi_data.reshow) return false;
 		var cookie_name = _wdsi_data.reshow.name,
 			path = window.location.pathname,
 			cookie = false

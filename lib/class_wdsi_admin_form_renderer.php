@@ -222,7 +222,7 @@ class Wdsi_AdminFormRenderer {
 				//'<label for="scheme-' . esc_attr($theme) . '">' . esc_html($label) . '</label><br />' .
 			'';
 		}
-		echo '<p class="wdsi-preview_slide"><a href="#preview" data-working="' . esc_attr(__('Verarbeite... bitte warte', 'wdsi')) . '">' . __('Vorschau', 'wdsi') . '</a></p>';
+		echo '<p class="wdsi-preview_slide"><a href="#preview" onclick="return wdsi_preview_slide(event);" data-working="' . esc_attr(__('Verarbeite... bitte warte', 'wdsi')) . '">' . __('Vorschau', 'wdsi') . '</a></p>';
 		echo '</div>';
 	}
 	
