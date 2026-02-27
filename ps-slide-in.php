@@ -3,7 +3,7 @@
 Plugin Name: PS Slide-In
 Plugin URI: https://power-source.github.io/ps-slide-in/
 Description: Erstelle und verwalte schöne Marketingbotschaften und konvertiere dann Deine Zielgruppe so, dass sie nicht gestört wird.
-Version: 1.1.0
+Version: 1.0.0
 Text Domain: wdsi
 Author: PSOURCE
 Author URI: https://github.com/Power-Source
@@ -26,15 +26,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 
-define ('WDSI_CURRENT_VERSION', '1.1.0');
+define ('WDSI_CURRENT_VERSION', '1.0.0');
 define ('WDSI_PLUGIN_SELF_DIRNAME', basename(dirname(__FILE__)));
 define ('WDSI_PROTOCOL', (is_ssl() ? 'https://' : 'http://'));
 
 //Setup proper paths/URLs and load text domains
 if (is_multisite() && defined('WPMU_PLUGIN_URL') && defined('WPMU_PLUGIN_DIR') && file_exists(WPMU_PLUGIN_DIR . '/' . basename(__FILE__))) {
-	define ('WDSI_PLUGIN_LOCATION', 'mu-plugins', true);
-	define ('WDSI_PLUGIN_BASE_DIR', WPMU_PLUGIN_DIR, true);
-	define ('WDSI_PLUGIN_URL', str_replace('http://', WDSI_PROTOCOL, WPMU_PLUGIN_URL), true);
+	define ('WDSI_PLUGIN_LOCATION', 'mu-plugins');
+	define ('WDSI_PLUGIN_BASE_DIR', WPMU_PLUGIN_DIR);
+	define ('WDSI_PLUGIN_URL', str_replace('http://', WDSI_PROTOCOL, WPMU_PLUGIN_URL));
 	$textdomain_handler = 'load_muplugin_textdomain';
 } else if (defined('WP_PLUGIN_URL') && defined('WP_PLUGIN_DIR') && file_exists(WP_PLUGIN_DIR . '/' . WDSI_PLUGIN_SELF_DIRNAME . '/' . basename(__FILE__))) {
 	define ('WDSI_PLUGIN_LOCATION', 'subfolder-plugins');
@@ -42,9 +42,9 @@ if (is_multisite() && defined('WPMU_PLUGIN_URL') && defined('WPMU_PLUGIN_DIR') &
 	define ('WDSI_PLUGIN_URL', str_replace('http://', WDSI_PROTOCOL, WP_PLUGIN_URL) . '/' . WDSI_PLUGIN_SELF_DIRNAME);
 	$textdomain_handler = 'load_plugin_textdomain';
 } else if (defined('WP_PLUGIN_URL') && defined('WP_PLUGIN_DIR') && file_exists(WP_PLUGIN_DIR . '/' . basename(__FILE__))) {
-	define ('WDSI_PLUGIN_LOCATION', 'plugins', true);
-	define ('WDSI_PLUGIN_BASE_DIR', WP_PLUGIN_DIR, true);
-	define ('WDSI_PLUGIN_URL', str_replace('http://', WDSI_PROTOCOL, WP_PLUGIN_URL), true);
+	define ('WDSI_PLUGIN_LOCATION', 'plugins');
+	define ('WDSI_PLUGIN_BASE_DIR', WP_PLUGIN_DIR);
+	define ('WDSI_PLUGIN_URL', str_replace('http://', WDSI_PROTOCOL, WP_PLUGIN_URL));
 	$textdomain_handler = 'load_plugin_textdomain';
 } else {
 	// No textdomain is loaded because we can't determine the plugin location.
