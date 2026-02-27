@@ -9,7 +9,7 @@ Author: PSOURCE
 Author URI: https://github.com/Power-Source
 
 
-Copyright 2020-2023 PSOURCE (https://github.com/Power-Source) 
+Copyright 2020-2026 PSOURCE (https://github.com/Power-Source) 
 Authors - DerN3rd (PSOURCE)
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
